@@ -8,7 +8,7 @@ class VkTools():
 
         def get_profile_info(self, user_id):
             info = self.vk_api.method('users.get',
-                                      {'user_id': user_id
+                                      {'user_id': user_id,
                                        'fields': 'bdate,city,sex,relation'
 
                                       }
