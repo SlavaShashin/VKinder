@@ -14,6 +14,7 @@ class BotInterface:
         self.bot.method('messages.send',
                         {'user_id': user_id,
                          'message': message,
+                         'attachment': attachment,
                          'random_id': get_random_id()
                          }
                         )
@@ -22,13 +23,13 @@ class BotInterface:
         longpoll = VkLongPoll(self.bot)
         for event in longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                if event.text.lower() == 'привет':
-                    self.message_send(event.user_id, 'хай')
+                if event.text.lower() == 'привет'.lower():
+                    self.message_send(event.user_id, 'хай'.lower())
                 elif event.text.lower() == 'поиск':
-                    self.message_send(event.user_id, 'введите имя')
+                    self.message_send(event.user_id, 'введите имя'.lower())
                 elif event.text.lower() == 'далее':
-                    self.message_send(event.user_id, 'дальнейший поиск')
+                    self.message_send(event.user_id, 'дальнейший поиск'.lower())
                 else:
-                    self.message_send(event.user_id, 'неизвестная команда')
+                    self.message_send(event.user_id, 'неизвестная команда'.lower())
 
 
