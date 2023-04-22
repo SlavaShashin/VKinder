@@ -2,10 +2,12 @@ import vk_api
 from config import acces_token
 from vk_api.exceptions import ApiError
 
+token = acces_token
 
-class vkTools():
+
+class VkTools:
     def __init__(self, token):
-        self.ext_api = vk_api.VkApi(token=acces_token)
+        self.ext_api = vk_api.VkApi(token=token)
 
     def get_profile_info(self, user_id):
 
