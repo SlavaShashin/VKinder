@@ -66,7 +66,7 @@ class VkTools:
                            'id': photo['id']
                            })
 
-            if num == 2:
+            if num == result.pop(photos):
                 break
 
         return result

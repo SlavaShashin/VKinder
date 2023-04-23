@@ -38,10 +38,12 @@ class Viewed(Base):
     def add_db(self, profile_id, worksheet_id):
         to_bd = Viewed(profile_id, worksheet_id)
         session.add(to_bd)
+        return to_bd
 
     def extract_db(self):
         from_bd = session.query(Viewed).filter(Viewed.profile_id == 123).all()
         session.commit(from_bd)
+        return from_bd
 
 
 session.commit()
