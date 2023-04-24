@@ -34,3 +34,6 @@ class BotInterface:
                     self.message_send(event.user_id, 'неизвестная команда')
 
 
+# if __name__ == 'main':
+#     bot = BotInterface(comunity_token)
+#     bot.message_send(#)

@@ -1,3 +1,4 @@
+import self as self
 import vk_api
 from config import acces_token
 from vk_api.exceptions import ApiError
@@ -22,7 +23,7 @@ class VkTools:
 
         return info
 
-    def user_search(self, city_id, age_from, age_to, sex, offset=None):
+    def user_search(self, city_id, age_from, age_to, sex, relation, offset=None):
 
         try:
             profiles = self.ext_api.method('users.search',
@@ -30,6 +31,7 @@ class VkTools:
                                             'age_from': age_from,
                                             'age_to': age_to,
                                             'sex': sex,
+                                            'relation': relation,
                                             'count': 30,
                                             'offset': offset
                                             }
@@ -66,7 +68,21 @@ class VkTools:
                            'id': photo['id']
                            })
 
-            if num == result.pop(photos):
-                break
+            count_likes_and_comments = photo['likes']['count'] + photo['comments']['count']
+            result.append((count_likes_and_comments, photo))
+            if len(result) > 2:
+                result.sort(reverse=True)
+                return [result[0][1], result[1][1], result[2][1]]
+            else:
+                return False
 
         return result
+
+
+# if __name__ == 'main':
+#     tools = VkTools(acces_token)
+#     # print(tools.get_profile_info(#))
+#     # profiles = tools.user_search(1, 20, 40, 1)
+#     # print(profiles)
+#     photos = tools.photos_get(#)
+#     print(photos)
