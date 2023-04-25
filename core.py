@@ -1,4 +1,3 @@
-import self as self
 import vk_api
 from config import acces_token
 from vk_api.exceptions import ApiError
