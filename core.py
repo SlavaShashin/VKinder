@@ -68,8 +68,8 @@ class VkTools:
                            'id': photo['id']
                            })
 
-            count_likes_and_comments = photo['likes']['count'] + photo['comments']['count']
-            result.append((count_likes_and_comments, photo))
+            num = photo['likes']['count'] + photo['comments']['count']
+            result.append((num, photo))
             if len(result) > 2:
                 result.sort(reverse=True)
                 return [result[0][1], result[1][1], result[2][1]]
@@ -84,5 +84,5 @@ class VkTools:
 #     # print(tools.get_profile_info(#))
 #     # profiles = tools.user_search(1, 20, 40, 1)
 #     # print(profiles)
-#     photos = tools.photos_get(#)
+#     photos = tools.photos_get()
 #     print(photos)
