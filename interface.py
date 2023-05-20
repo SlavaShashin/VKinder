@@ -36,4 +36,4 @@ class BotInterface:
 
 # if __name__ == 'main':
 #     bot = BotInterface(comunity_token)
-#     bot.message_send(#)
+#     bot.message_send()

@@ -82,7 +82,7 @@ class VkTools:
 
 # if __name__ == 'main':
 #     tools = VkTools(acces_token)
-#     # print(tools.get_profile_info(#))
+#     # print(tools.get_profile_info())
 #     # profiles = tools.user_search(1, 20, 40, 1)
 #     # print(profiles)
 #     photos = tools.photos_get()
