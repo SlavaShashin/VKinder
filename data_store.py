@@ -2,6 +2,7 @@ import sqlalchemy
 import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 DSN = 'db_url_object'
 engine = sqlalchemy.create_engine(DSN)
@@ -26,6 +27,31 @@ def create_table(self):
 session.commit()
 
 
+class User(Base):
+    __tablename__ = 'user'
+    id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
+    vk_id = sq.Column(sq.Integer, unique=True)
+
+
+class Photos(Base):
+    __tablename__ = 'photos'
+    id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
+    link_photo = sq.Column(sq.String)
+    count_likes = sq.Column(sq.Integer)
+    id_dating_user = sq.Column(sq.Integer, sq.ForeignKey('dating_user.id', ondelete='CASCADE'))
+
+
+class SelectedProfiles(Base):
+    __tablename__ = 'selected_profiles'
+    id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
+    vk_id = sq.Column(sq.Integer, unique=True)
+    first_name = sq.Column(sq.String)
+    second_name = sq.Column(sq.String)
+    city = sq.Column(sq.String)
+    link = sq.Column(sq.String)
+    id_user = sq.Column(sq.Integer, sq.ForeignKey('user.id', ondelete='CASCADE'))
+
+
 class Viewed(Base):
     __tablename__ = 'viewed'
 
@@ -41,9 +67,31 @@ class Viewed(Base):
         return to_bd
 
     def extract_db(self):
-        from_bd = session.query(Viewed).filter(Viewed.profile_id == 123).all()
-        session.commit(from_bd)
-        return from_bd
+        from_db = session.query(Viewed).filter(Viewed.profile_id == 123).all()
+        session.commit(self)
+        return from_db
+
+
+class Functions(Base):
+    def check_db(self):
+        current_user_id = session.query(User).filter_by(vk_id=self).first()
+        return current_user_id
+
+    def check_db_user(self):
+        dating_user = session.query(SelectedProfiles).filter_by(
+            vk_id=self).first()
+        blocked_user = session.query(SelectedProfiles).filter_by(
+            vk_id=self).first()
+        return dating_user, blocked_user
+
+    def register_user(self):
+        try:
+            new_user = User(vk_id=self)
+            session.add(new_user)
+            session.commit()
+            return True
+        except (IntegrityError, InvalidRequestError):
+            return False
 
 
 session.commit()
