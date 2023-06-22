@@ -107,7 +107,7 @@ class VkTools():
                 comments = comments['comments']['count']
                 photos_dict[db_url] = likes
                 top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
-            return result
+            return top3_photos
 
 
 if __name__ == '__main__':
