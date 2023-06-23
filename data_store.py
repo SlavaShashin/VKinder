@@ -1,13 +1,13 @@
-# импорты
 import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
 
+from config import db_url
 
-# схема БД
 metadata = MetaData()
 Base = declarative_base()
+
 
 class Viewed(Base):
     __tablename__ = 'viewed'
@@ -15,19 +15,30 @@ class Viewed(Base):
     worksheet_id = sq.Column(sq.Integer, primary_key=True)
 
 
-# добавление записи в бд
-
-engine = create_engine(db_url_object)
+engine = create_engine(db_url)
 Base.metadata.create_all(engine)
-with Session(engine) as session:
-    to_bd = Viewed(profile_id=1, worksheet_id=1)
-    session.add(to_bd)
-    session.commit()
 
-# извлечение записей из БД
 
-engine = create_engine(db_url_object)
-with Session(engine) as session:
-    from_bd = session.query(Viewed).filter(Viewed.profile_id==1).all()
-    for item in from_bd:
-        print(item.worksheet_id)
+def add_user(engine, profile_id, worksheet_id):
+    with Session(engine) as session:
+        to_bd = Viewed(profile_id=profile_id, worksheet_id=worksheet_id)
+        session.add(to_bd)
+        session.commit()
+
+
+def check_user(engine, profile_id, worksheet_id):
+    with Session(engine) as session:
+        from_bd = session.query(Viewed).filter(
+            Viewed.profile_id == profile_id,
+            Viewed.worksheet_id == worksheet_id
+        ).first()
+        return True if from_bd else False
+
+
+if __name__ == '__main__':
+    engine = create_engine(db_url)
+    Base.metadata.create_all(engine)
+    add_user(engine, ..., ...)
+    res = check_user(engine, ..., ...)
+    print(res)
+

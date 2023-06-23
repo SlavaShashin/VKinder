@@ -1,17 +1,22 @@
+import psycopg2
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
 from config import comunity_token, acces_token
 from core import VkTools
+from psycopg2 import Error
+from config import db_url
 
 
 class BotInterface():
-
     def __init__(self, comunity_token, acces_token):
         self.interface = vk_api.VkApi(token=comunity_token)
+        self.longpoll = VkLongPoll(self.interface)
         self.api = VkTools(acces_token)
-        self.params = None
+        self.params = {}
+        self.worksheets = []
+        self.offset = 0
 
     def message_send(self, user_id, message, attachment=None):
         self.interface.method('messages.send',
@@ -31,27 +36,58 @@ class BotInterface():
 
                 if command == 'привет':
                     self.params = self.api.get_profile_info(event.user_id)
-                    self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
+                    self.message_send(event.user_id, f'Приветствую тебя, {self.params["name"]}')
                 elif command == 'поиск':
-                    users = self.api.serch_users(self.params)
+                    users = self.api.search_users(self.params)
                     user = users.pop()
-                    # здесь логика дял проверки бд
-                    photos_user = self.api.get_photos(user['id'])
 
+        def virification_worksheets(self):
+            if self.worksheets:
+                worksheet = self.worksheets.pop()
+                photos_user = self.api.get_photos(worksheet['id'])
+
+                self.message_send(event.user_id, f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}'),
+                attachment = ''
+
+                for num, photo in enumerate(photos_user):
+                    attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
+                else:
+                    self.worksheets = self.api.search_worksheet(self.params, self.offset)
+                    worksheet = self.worksheets.pop()
+                    photos_user = self.api.get_photos(worksheet['id'])
+
+                    self.message_send(event.user_id, f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}'),
                     attachment = ''
+
                     for num, photo in enumerate(photos_user):
-                        attachment += f'photo{photo["owner_id"]}_{photo["id"]}'
+                        attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
                         if num == 2:
                             break
-                    self.message_send(event.user_id,
-                                      f'Встречайте {user["name"]}',
-                                      attachment=attachment
-                                      )
-                    # здесь логика для добавленяи в бд
-                elif command == 'пока':
-                    self.message_send(event.user_id, 'пока')
-                else:
-                    self.message_send(event.user_id, 'команда не опознана')
+
+                        self.message_send(event.user_id,
+                                              f'познакомтесь: {user["name"]}',
+                                              attachment=attachment
+                                              )
+                    self.offset += 10
+
+                    try:
+                        connection = psycopg2.connect(db_url)
+                        cursor = connection.cursor()
+                        postgres_insert_query = """ INSERT INTO worksheet (user_id)
+                                                               VALUES (owner_id)"""
+                        record_to_insert = ()
+                        cursor.execute(postgres_insert_query, record_to_insert)
+
+                        connection.commit()
+                    except (Exception, Error) as error:
+                        print('Ошибка базы данных', error)
+
+
+
+            elif command == 'пока':
+                self.message_send(event.user_id, 'пока')
+            else:
+                self.message_send(event.user_id, 'неизвестная команда')
 
 
 if __name__ == '__main__':

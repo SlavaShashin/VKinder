@@ -3,6 +3,7 @@ from datetime import datetime
 import vk_api
 from config import acces_token
 from vk_api.exceptions import ApiError
+from config import db_url
 
 
 class VkTools():
