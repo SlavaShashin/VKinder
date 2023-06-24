@@ -2,11 +2,13 @@ import psycopg2
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
+import dictionaries_vk
 
 from config import comunity_token, acces_token
 from core import VkTools
 from psycopg2 import Error
 from config import db_url
+from sqlalchemy.orm import Session
 
 
 class BotInterface():
@@ -82,7 +84,27 @@ class BotInterface():
                     except (Exception, Error) as error:
                         print('Ошибка базы данных', error)
 
-
+                    photos_attachment = ",".join(photos_user)
+                    user_answer = []
+                    user_number = []
+                    session = db_url.Session()
+                    if user_answer == '1':
+                        dating_user = db_url.DatingUser(['id'], user_number['first_name'],
+                                                    user_number['last_name'], user_number['bdate'],
+                                                    user_number['sex'], user_number['city'], photos_attachment,
+                                                    user_number['domain'], event.user_id)
+                        session.add(dating_user)
+                    elif user_answer == '2':
+                        black_list_item = db_url.BlackList(user_number['id'], user_number['first_name'],
+                                                       user_number['last_name'], user_number['bdate'],
+                                                       user_number['sex'], user_number['city'],
+                                                       photos_attachment, user_number['domain'], event.user_id)
+                        session.add(black_list_item)
+                    elif user_answer == '3':
+                        self.write_msg(user_id=event.user_id,
+                                       message=dictionaries_vk.options_messages['users_end_search'])
+                        return False
+                    session.commit()
 
             elif command == 'пока':
                 self.message_send(event.user_id, 'пока')
