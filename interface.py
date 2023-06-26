@@ -2,7 +2,6 @@ import psycopg2
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
-import dictionaries_vk
 
 from config import comunity_token, acces_token
 from core import VkTools
@@ -118,8 +117,8 @@ class BotInterface():
             self.message_send(event.user_id, 'неизвестная команда')
 
 
-if __name__ == '__main__':
-    bot = BotInterface(comunity_token, acces_token)
-    bot.event_handler()
+# if __name__ == '__main__':
+#     bot = BotInterface(comunity_token, acces_token)
+#     bot.event_handler()
 
 

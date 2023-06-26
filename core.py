@@ -38,84 +38,85 @@ class VkTools():
 
             return user_info
 
-    def search_worksheet(self, params):
-        try:
-            users = self.vkapi.method('users.search',
-                                      {'count': 50,
-                                       'offset': 0,
-                                       'age_from': params['year'] - 3,
-                                       'age_to': params['year'] + 3,
-                                       'has_photo': True,
-                                       'sex': 1 if params['sex'] == 2 else 2,
-                                       'hometown': params['city'],
-                                       'status': 6,
-                                       'is_closed': False
-                                       }
-                                      )
+        def search_worksheet(self, params):
+
             try:
-                users = users['items']
-            except KeyError:
-                return []
+                users = self.vkapi.method('users.search',
+                                          {'count': 50,
+                                           'offset': 0,
+                                           'age_from': params['year'] - 3,
+                                           'age_to': params['year'] + 3,
+                                           'has_photo': True,
+                                           'sex': 1 if params['sex'] == 2 else 2,
+                                           'hometown': params['city'],
+                                           'status': 6,
+                                           'is_closed': False
+                                           }
+                                          )
+                try:
+                    users = users['items']
+                except KeyError:
+                    return []
 
-            result = []
+                result = []
 
-            for user in users:
-                if not user['is_closed']:
-                    result.append({'id': user['id'],
-                                'name': user['first_name'] + ' ' + user['last_name']
-                                }
-                               )
+                for user in users:
+                    if not user['is_closed']:
+                        result.append({'id': user['id'],
+                                    'name': user['first_name'] + ' ' + user['last_name']
+                                    }
+                                   )
 
-            return result
-        except ApiError as e:
-            users = []
-            print(f'error = {e}')
+                return result
+            except ApiError as e:
+                users = []
+                print(f'error = {e}')
 
-        result = [{'name': item['first_name'] + item['last_name'],
-                   'id': item['id']
-                   } for item in users['items'] if item['is_closed'] is False
-                  ]
-
-        return result
-
-    def get_photos(self, id):
-        try:
-            photos = self.vkapi.method('photos.get',
-                                       {'owner_id': id,
-                                        'album_id': 'profile',
-                                        'extended': 1
-                                        }
-                                       )
-            try:
-                photos = photos['items']
-            except KeyError:
-                return []
-
-            result = [{'owner_id': item['owner_id'],
-                       'id': item['id'],
-                       'likes': item['likes']['count'],
-                       'comments': item['comments']['count']
-                       } for item in photos['items']
+            result = [{'name': item['first_name'] + item['last_name'],
+                       'id': item['id']
+                       } for item in users['items'] if item['is_closed'] is False
                       ]
 
-        except ApiError as e:
-            photos = []
-            print(f'error = {e}')
+            return result
 
-            photos_dict = dict()
-            for photo in photos:
-                likes = photo['likes']['count']
-                comments = comments['comments']['count']
-                photos_dict[db_url] = likes
-                top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
-            return top3_photos
+        def get_photos(self, id):
+            try:
+                photos = self.vkapi.method('photos.get',
+                                           {'owner_id': id,
+                                            'album_id': 'profile',
+                                            'extended': 1
+                                            }
+                                           )
+                try:
+                    photos = photos['items']
+                except KeyError:
+                    return []
+
+                result = [{'owner_id': item['owner_id'],
+                           'id': item['id'],
+                           'likes': item['likes']['count'],
+                           'comments': item['comments']['count']
+                           } for item in photos['items']
+                          ]
+
+            except ApiError as e:
+                photos = []
+                print(f'error = {e}')
+
+                photos_dict = dict()
+                for photo in photos:
+                    likes = photo['likes']['count']
+                    comments = comments['comments']['count']
+                    photos_dict[db_url] = likes
+                    top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
+                return top3_photos
 
 
-if __name__ == '__main__':
-    tools = VkTools(acces_token)
-    params = tools.get_profile_info(...)
-    worksheets = tools.search_worksheet(params)
-    worksheet = worksheets.pop()
-    photos = tools.get_photos(worksheet['id'])
-
-    pprint(worksheets)
+# if __name__ == '__main__':
+#     tools = VkTools(acces_token)
+#     params = tools.get_profile_info(...)
+#     worksheets = tools.search_worksheet(params)
+#     worksheet = worksheets.pop()
+#     photos = tools.get_photos(worksheet['id'])
+#
+#     pprint(worksheets)
