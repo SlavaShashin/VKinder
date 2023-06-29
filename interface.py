@@ -1,16 +1,15 @@
 import psycopg2
 import vk_api
+from psycopg2 import Error
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
-from config import comunity_token, acces_token
-from core import VkTools
-from psycopg2 import Error
 from config import db_url
+from core import VkTools
 
+if __name__ == '__main__':
 
-def main():
-    class BotInterface():
+    class BotInterface:
 
         def __init__(self, comunity_token, acces_token):
             self.interface = vk_api.VkApi(token=comunity_token)
@@ -115,10 +114,3 @@ def main():
                 self.message_send(event.user_id, 'пока')
             else:
                 self.message_send(event.user_id, 'неизвестная команда')
-
-
-main()
-
-# if __name__ == '__main__':
-#     bot = BotInterface(comunity_token, acces_token)
-#     bot.event_handler()

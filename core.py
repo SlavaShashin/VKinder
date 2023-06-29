@@ -1,8 +1,8 @@
-from pprint import pprint
 from datetime import datetime
+
 import vk_api
-from config import acces_token
 from vk_api.exceptions import ApiError
+
 from config import db_url
 
 
@@ -12,7 +12,7 @@ def _bdate_toyear(bdate):
     return now - int(user_yaer)
 
 
-class VkTools():
+class VkTools:
     def __init__(self, acces_token):
         self.vkapi = vk_api.VkApi(token=acces_token)
 
@@ -111,12 +111,3 @@ class VkTools():
                 photos_dict[db_url] = likes
                 top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
             return top3_photos
-
-# if __name__ == '__main__':
-#     tools = VkTools(acces_token)
-#     params = tools.get_profile_info(...)
-#     worksheets = tools.search_worksheet(params)
-#     worksheet = worksheets.pop()
-#     photos = tools.get_photos(worksheet['id'])
-#
-#     pprint(worksheets)
