@@ -100,6 +100,7 @@ class VkTools:
                        } for item in photos['items']
                       ]
 
+            return result
         except ApiError as e:
             photos = []
             print(f'error = {e}')
