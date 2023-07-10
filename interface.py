@@ -108,5 +108,5 @@ if __name__ == '__main__':
                     self.message_send(event.user_id, 'неизвестная команда')
 
 
-bot = Botinterface(comunity_token, acces_token)
-bot.worksheets
+    bot = Botinterface(comunity_token, acces_token)
+    bot.worksheets
