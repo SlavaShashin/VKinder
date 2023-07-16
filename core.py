@@ -1,40 +1,40 @@
 from datetime import datetime
-
-import vk_api
 from vk_api.exceptions import ApiError
-
 from config import db_url, acces_token
 
+import vk_api
 
-def _bdate_toyear(bdate):
-    user_year = bdate.split('.')[2] if bdate else None
-    now = datetime.now().year
-    return now - int(user_year)
 
 
 class VkTools:
     def __init__(self, acces_token):
-        self.api = vk_api.VkApi(token=acces_token)
+        self.vkapi = vk_api.VkApi(token=acces_token)
+
+    def _bdate_toyear(self, bdate):
+        user_year = bdate.split('.')[2] if bdate else None
+        now = datetime.now().year
+        return now - int(user_year)
 
     def get_profile_info(self, user_id):
 
         try:
-            info = self.api.method('users.get',
-                                    {'user_id': user_id,
-                                    'fields': 'city,bdate,sex,relation,home_town'
-                                    }
-                                    )
+            info = self.vkapi.method('users.get',
+                                     {'user_id': user_id,
+                                      'fields': 'city,bdate,sex,relation,home_town'
+                                      }
+                                     )
         except ApiError as e:
             info = {}
             print(f'error = {e}')
 
-        user_info = {'name': info['first_name'] + ' ' + info['last_name'] if
-        'first_name' in info and 'last_name' in info else None,
-                     'bdate': info['bdate'] if 'bdate' in info else None,
+        user_info = {'name': (info['first_name'] + ' ' + info['last_name']) if
+                     'first_name' in info and 'last_name' in info else None,
+                     'year': self._bdate_toyear(info.get('bdate')) if 'bdate' in info else None,
                      'home_town': info.get('home_town') if 'home_town' in info else None,
                      'sex': info.get('sex') if 'sex' in info else None,
-                     'city': info.get('city') if 'city' in info else None,
-                     'id': info.get('id') if 'id' in info else None
+                     'city': info.get('city')['title'] if 'city' in info else None,
+                     'id': info.get('id') if 'id' in info else None,
+                     'relation': info.get('relation') if 'relation' in info else None
                      }
 
         return user_info
@@ -42,21 +42,21 @@ class VkTools:
     def search_worksheet(self, params):
 
         try:
-            users = self.api.method('users.search',
-                                    {
-                                        'count': 50,
-                                        'offset': 0,
-                                        'age_from': params['year'] - 3,
-                                        'age_to': params['year'] + 3,
-                                        'has_photo': True,
-                                        'sex': 1 if params['sex'] == 2 else 2,
-                                        'hometown': params['city'],
-                                        'status': 6,
-                                        'is_closed': False
-                                        }
-                                    )
+            users = self.vkapi.method('users.search',
+                                      {
+                                          'count': 50,
+                                          'offset': 0,
+                                          'age_from': params['year'] == - 3,
+                                          'age_to': params['year'] == + 3,
+                                          'has_photo': True,
+                                          'sex': 1 if params['sex'] == 2 else 2,
+                                          'hometown': params['city'],
+                                          'status': 6,
+                                          'is_closed': False
+                                      }
+                                      )
             try:
-                user = users['items']
+                users = users['items']
             except KeyError:
                 return []
 
@@ -71,13 +71,13 @@ class VkTools:
 
             return result
         except ApiError as e:
-            user = []
+            users = []
             print(f'error = {e}')
 
         result = [{'name': item['first_name'] + item['last_name'],
                    'id': item['id']
                    }
-                  for item in user['items'] if item['is_closed'] is False
+                  for item in users if item['is_closed'] is False
                   ]
 
         return result
@@ -111,14 +111,16 @@ class VkTools:
             photos_dict = dict()
             for photo in photos:
                 likes = photo['likes']['count']
-                comments = comments['comments']['count']
-                photos_dict[db_url] = likes
-                top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
+                comments = photo['comments']['count']
+                photos_dict[db_url] = likes, comments
+            top3_photos = sorted(photos_dict.items(), key=lambda x: x[1], reverse=True)[0:3]
             return top3_photos
 
 
-if __name__ == '__main__':
-    user_id = []
-    bot = VkTools(acces_token)
-    params = bot.get_profile_info(user_id)
-    users = bot.search_worksheet(params)
+# if __name__ == '__main__':
+#     user_id = []
+#     tools = VkTools(acces_token)
+#     params = tools.get_profile_info(user_id)
+#     worksheets = tools.search_worksheet(params)
+#     worksheet = worksheets.pop
+#     photos = tools.get_photos(worksheet)

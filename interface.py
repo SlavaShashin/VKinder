@@ -40,33 +40,33 @@ class BotInterface:
                     users = self.api.search_users(self.params)
                     user = users.pop()
 
-            if self.worksheets:
-                worksheets = self.worksheets.pop()
-                photos_user = self.api.get_photos(worksheets['id'])
+                    if self.worksheets:
+                        worksheets = self.worksheets.pop()
+                        photos_user = self.api.get_photos(worksheets['id'])
 
-                self.message_send(event.user_id, f'имя: {worksheets["name"]} ссылка: vk.com/{worksheets["id"]}'),
-                attachment = ''
+                        self.message_send(event.user_id, f'имя: {worksheets["name"]} ссылка: vk.com/{worksheets["id"]}'),
+                        attachment = ''
 
-                for num, photo in enumerate(photos_user):
-                    attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
-                else:
-                    self.worksheets = self.api.search_worksheet(self.params, self.offset)
-                    worksheet = self.worksheets.pop()
-                    photos_user = self.api.get_photos(worksheet['id'])
+                        for num, photo in enumerate(photos_user):
+                            attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
+                        else:
+                            self.worksheets = self.api.search_worksheet(self.params, self.offset)
+                            worksheet = self.worksheets.pop()
+                            photos_user = self.api.get_photos(worksheet['id'])
 
-                    self.message_send(event.user_id, f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}'),
-                    attachment = ''
+                            self.message_send(event.user_id, f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}'),
+                            attachment = ''
 
-                    for num, photo in enumerate(photos_user):
-                        attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
-                        if num == 2:
-                            break
+                            for num, photo in enumerate(photos_user):
+                                attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
+                                if num == 2:
+                                    break
 
-                        self.message_send(event.user_id,
-                                          f'познакомтесь: {event.user_id["name"]}',
-                                          attachment=attachment
-                                          )
-                    self.offset += 10
+                                self.message_send(event.user_id,
+                                                  f'познакомтесь: {event.user_id["name"]}',
+                                                  attachment=attachment
+                                                  )
+                            self.offset += 10
 
                     try:
                         connection = psycopg2.connect(db_url)
