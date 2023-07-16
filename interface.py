@@ -44,7 +44,8 @@ class BotInterface:
                         worksheets = self.worksheets.pop()
                         photos_user = self.api.get_photos(worksheets['id'])
 
-                        self.message_send(event.user_id, f'имя: {worksheets["name"]} ссылка: vk.com/{worksheets["id"]}'),
+                        self.message_send(event.user_id, f'имя: {worksheets["name"]} '
+                                                         f'ссылка: vk.com/{worksheets["id"]}'),
                         attachment = ''
 
                         for num, photo in enumerate(photos_user):
@@ -54,7 +55,8 @@ class BotInterface:
                             worksheet = self.worksheets.pop()
                             photos_user = self.api.get_photos(worksheet['id'])
 
-                            self.message_send(event.user_id, f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}'),
+                            self.message_send(event.user_id, f'имя: {worksheet["name"]} '
+                                                             f'ссылка: vk.com/{worksheet["id"]}'),
                             attachment = ''
 
                             for num, photo in enumerate(photos_user):
