@@ -8,7 +8,7 @@ from config import db_url, comunity_token, acces_token
 from core import VkTools
 
 
-class Botinterface:
+class BotInterface:
     def __init__(self, comunity_token, acces_token):
         self.interface = vk_api.VkApi(token=comunity_token)
         self.longpoll = VkLongPoll(self.interface)
@@ -108,4 +108,4 @@ class Botinterface:
 
 
 if __name__ == '__main__':
-    bot = Botinterface(comunity_token, acces_token)
+    bot = BotInterface(comunity_token, acces_token)

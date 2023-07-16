@@ -38,4 +38,3 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
     add_user(engine, profile_id, worksheet_id)
     result = check_user(engine, profile_id, worksheet_id)
-    print(result)

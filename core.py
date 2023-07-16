@@ -33,8 +33,8 @@ class VkTools:
                      'bdate': info['bdate'] if 'bdate' in info else None,
                      'home_town': info.get('home_town') if 'home_town' in info else None,
                      'sex': info.get('sex') if 'sex' in info else None,
-                     'city': info['city']['id'],
-                     'id': info.get('id')
+                     'city': info.get('city') if 'city' in info else None,
+                     'id': info.get('id') if 'id' in info else None
                      }
 
         return user_info
@@ -42,20 +42,21 @@ class VkTools:
     def search_worksheet(self, params):
 
         try:
-            user = self.api.method('users.search',
-                                   {'count': 50,
-                                    'offset': 0,
-                                    'age_from': params['year'] - 3,
-                                    'age_to': params['year'] + 3,
-                                    'has_photo': True,
-                                    'sex': 1 if params['sex'] == 2 else 2,
-                                    'hometown': params['city'],
-                                    'status': 6,
-                                    'is_closed': False
-                                    }
+            users = self.api.method('users.search',
+                                    {
+                                        'count': 50,
+                                        'offset': 0,
+                                        'age_from': params['year'] - 3,
+                                        'age_to': params['year'] + 3,
+                                        'has_photo': True,
+                                        'sex': 1 if params['sex'] == 2 else 2,
+                                        'hometown': params['city'],
+                                        'status': 6,
+                                        'is_closed': False
+                                        }
                                     )
             try:
-                users = user['items']
+                user = users['items']
             except KeyError:
                 return []
 
