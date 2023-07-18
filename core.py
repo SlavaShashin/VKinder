@@ -5,7 +5,6 @@ from config import db_url, acces_token
 import vk_api
 
 
-
 class VkTools:
     def __init__(self, acces_token):
         self.vkapi = vk_api.VkApi(token=acces_token)
@@ -40,17 +39,21 @@ class VkTools:
         return user_info
 
     def search_worksheet(self, params):
+        sex = 1 if params['sex'] == 2 else 2
+        city = params['city']
+        age_from = - 5
+        age_to = + 5
 
         try:
             users = self.vkapi.method('users.search',
                                       {
                                           'count': 50,
                                           'offset': 0,
-                                          'age_from': params['year'] == - 3,
-                                          'age_to': params['year'] == + 3,
+                                          'age_from': age_from,
+                                          'age_to': age_to,
                                           'has_photo': True,
-                                          'sex': 1 if params['sex'] == 2 else 2,
-                                          'hometown': params['city'],
+                                          'sex': sex,
+                                          'city': city,
                                           'status': 6,
                                           'is_closed': False
                                       }
@@ -117,10 +120,10 @@ class VkTools:
             return top3_photos
 
 
-# if __name__ == '__main__':
-#     user_id = []
-#     tools = VkTools(acces_token)
-#     params = tools.get_profile_info(user_id)
-#     worksheets = tools.search_worksheet(params)
-#     worksheet = worksheets.pop
-#     photos = tools.get_photos(worksheet)
+if __name__ == '__main__':
+    user_id = []
+    tools = VkTools(acces_token)
+    params = tools.get_profile_info(user_id)
+    worksheets = tools.search_worksheet(params)
+    worksheet = worksheets.pop
+    photos = tools.get_photos(worksheet)

@@ -31,10 +31,10 @@ def check_user(engine, profile_id, worksheet_id):
         return True if from_bd else False
 
 
-# if __name__ == '__main__':
-#     profile_id = []
-#     worksheet_id = []
-#     engine = create_engine(db_url)
-#     Base.metadata.create_all(engine)
-#     add_user(engine, profile_id, worksheet_id)
-#     result = check_user(engine, profile_id, worksheet_id)
+if __name__ == '__main__':
+    profile_id = []
+    worksheet_id = []
+    engine = create_engine(db_url)
+    Base.metadata.create_all(engine)
+    add_user(engine, profile_id, worksheet_id)
+    result = check_user(engine, profile_id, worksheet_id)
