@@ -11,8 +11,11 @@ from core import VkTools
 class BotInterface:
     def __init__(self, comunity_token, acces_token):
         self.interface = vk_api.VkApi(token=comunity_token)
+        self.longpoll = VkLongPoll(self.interface)
         self.api = VkTools(acces_token)
-        self.params = None
+        self.params = {}
+        self.worksheets = []
+        self.offset = 0
 
     def message_send(self, user_id, message, attachment=None):
         self.interface.method('messages.send',
@@ -23,7 +26,7 @@ class BotInterface:
                                }
                               )
 
-    def event_handler(self):
+    def worksheets(self):
         longpoll = VkLongPoll(self.interface)
 
         for event in longpoll.listen():
@@ -32,27 +35,78 @@ class BotInterface:
 
                 if command == 'привет':
                     self.params = self.api.get_profile_info(event.user_id)
-                    self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
+                    self.message_send(event.user_id, f'Приветствую тебя, {self.params["name"]}')
                 elif command == 'поиск':
                     users = self.api.search_users(self.params)
                     user = users.pop()
-                    # здесь логика дял проверки бд
-                    photos_user = self.api.get_photos(user['id'])
 
-                    attachment = ''
-                    for num, photo in enumerate(photos_user):
-                        attachment += f'photo{photo["owner_id"]}_{photo["id"]}'
-                        if num == 2:
-                            break
-                    self.message_send(event.user_id,
-                                      f'Встречайте {user["name"]}',
-                                      attachment=attachment
-                                      )
-                    # здесь логика для добавленяи в бд
-                elif command == 'пока':
-                    self.message_send(event.user_id, 'пока')
-                else:
-                    self.message_send(event.user_id, 'команда не опознана')
+                    if self.worksheets:
+                        worksheets = self.worksheets.pop()
+                        photos_user = self.api.get_photos(worksheets['id'])
+
+                        self.message_send(event.user_id, f'имя: {worksheets["name"]} '
+                                                         f'ссылка: vk.com/{worksheets["id"]}'),
+                        attachment = ''
+
+                        for num, photo in enumerate(photos_user):
+                            attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
+                        else:
+                            self.worksheets = self.api.search_worksheet(self.params, self.offset)
+                            worksheet = self.worksheets.pop()
+                            photos_user = self.api.get_photos(worksheet['id'])
+
+                            self.message_send(event.user_id, f'имя: {worksheet["name"]} '
+                                                             f'ссылка: vk.com/{worksheet["id"]}'),
+                            attachment = ''
+
+                            for num, photo in enumerate(photos_user):
+                                attachment += f'photo{photo["owner_id"]}_{photo["id"]},'
+                                if num == 2:
+                                    break
+
+                                self.message_send(event.user_id,
+                                                  f'познакомтесь: {event.user_id["name"]}',
+                                                  attachment=attachment
+                                                  )
+                            self.offset += 10
+
+                    try:
+                        connection = psycopg2.connect(db_url)
+                        cursor = connection.cursor()
+
+                        record_to_insert = ()
+                        cursor.execute(record_to_insert)
+
+                        connection.commit()
+                    except (Exception, Error) as error:
+                        print('Ошибка базы данных', error)
+
+                    photos_attachment = ",".join(photos_user)
+                    user_answer = []
+                    user_number = []
+                    session = db_url.Session()
+                    if user_answer == '1':
+                        dating_user = db_url.DatingUser(['id'], user_number['first_name'],
+                                                        user_number['last_name'], user_number['bdate'],
+                                                        user_number['sex'], user_number['city'], photos_attachment,
+                                                        user_number['domain'], event.user_id)
+                        session.add(dating_user)
+                    elif user_answer == '2':
+                        black_list_item = db_url.BlackList(user_number['id'], user_number['first_name'],
+                                                            user_number['last_name'], user_number['bdate'],
+                                                            user_number['sex'], user_number['city'],
+                                                            photos_attachment, user_number['domain'], event.user_id)
+                        session.add(black_list_item)
+                    elif user_answer == '3':
+                        self.write_msg(user_id=event.user_id,
+                                        message=dictionaries_vk.options_messages['users_end_search'])
+                        return False
+                    session.commit()
+
+            elif command == 'пока':
+                self.message_send(event.user_id, 'пока')
+            else:
+                self.message_send(event.user_id, 'неизвестная команда')
 
 
 if __name__ == '__main__':

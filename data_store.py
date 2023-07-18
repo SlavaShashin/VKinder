@@ -15,21 +15,26 @@ class Viewed(Base):
     worksheet_id = sq.Column(sq.Integer, primary_key=True)
 
 
-def add_user(profile_id, worksheet_id):
-    engine = create_engine(db_url)
-    Base.metadata.create_all(engine)
+def add_user(engine, profile_id, worksheet_id):
     with Session(engine) as session:
         to_bd = Viewed(profile_id=profile_id, worksheet_id=worksheet_id)
         session.add(to_bd)
         session.commit()
 
 
-def check_user(profile_id, worksheet_id):
-    engine = create_engine(db_url)
-    Base.metadata.create_all(engine)
+def check_user(engine, profile_id, worksheet_id):
     with Session(engine) as session:
         from_bd = session.query(Viewed).filter(
             Viewed.profile_id == profile_id,
             Viewed.worksheet_id == worksheet_id
         ).first()
         return True if from_bd else False
+
+
+if __name__ == '__main__':
+    profile_id = []
+    worksheet_id = []
+    engine = create_engine(db_url)
+    Base.metadata.create_all(engine)
+    add_user(engine, profile_id, worksheet_id)
+    result = check_user(engine, profile_id, worksheet_id)
