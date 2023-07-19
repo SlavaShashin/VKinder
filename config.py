@@ -1,3 +1,3 @@
-comunity_token = 'vk1.a.dy8dNawby5OefmFlcZF0onhq16cz4yN0khxMmIiccFhrZxZqBY6bfmUbEx2DJSUd7JptIo56nlUZYGP8ytu_fC390wDAoKAQ2nqOlBnp3bqCpYfU5YDpUPD3yrC2jsU-1p-0gcPDGGYPLalHvyg024e7JnWC5N4KDStkF5s_o7WrCqSRoRkgpfr_FdgWC3SHZVmSmMreTuWCErFGRz7FVA'
-acces_token = 'vk1.a.LIsH5t3O-bzEFUyZU_Nm9ZN8nC1BUoP1ZGH9pZbS6mIL1n8YSqpCXTDB4TcBQO0IDRNOagWmkKfDiIALeDXXjhZfKmcn2wvlk0Nw7EOKNSDQ1EiFn76nLRQp-WI9PNtNIMXEesuRHD2SN1dzsvT-G7R1EtfZnqkXYfyGrlzZ50-8ig7PkSbsOgvaCAOzL8M1ID_jMhATs4EreN0F55gxHw'
-db_url = 'postgresql://postgres:230796@localhost:5432/data_store'
+comunity_token = '...'
+acces_token = '...'
+db_url = 'postgresql://postgres:...@localhost:5432/data_store'

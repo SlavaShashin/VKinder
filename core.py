@@ -2,10 +2,8 @@ from datetime import datetime
 
 import vk_api
 
-from config import acces_token
 
-
-class VkTools():
+class VkTools:
     def __init__(self, acces_token):
         self.api = vk_api.VkApi(token=acces_token)
 
@@ -25,7 +23,7 @@ class VkTools():
                      }
         return user_info
 
-    def serch_users(self, params):
+    def search_users(self, params):
 
         sex = 1 if params['sex'] == 2 else 2
         city = params['city']
@@ -54,7 +52,7 @@ class VkTools():
         res = []
 
         for user in users:
-            if user['is_closed'] == False:
+            if not user['is_closed']:
                 res.append({'id': user['id'],
                             'name': user['first_name'] + ' ' + user['last_name']
                             }

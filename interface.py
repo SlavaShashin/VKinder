@@ -1,7 +1,6 @@
 import psycopg2
 import vk_api
 from psycopg2 import Error
-from sqlalchemy import event
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
@@ -25,6 +24,7 @@ class BotInterface:
                               )
 
     def worksheets(self):
+        global attachment
         longpoll = VkLongPoll(self.interface)
 
         for event in longpoll.listen():
@@ -35,7 +35,7 @@ class BotInterface:
                     self.params = self.api.get_profile_info(event.user_id)
                     self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
                 elif command == 'поиск':
-                    users = self.api.serch_users(self.params)
+                    users = self.api.search_users(self.params)
                     user = users.pop()
 
                     photos_user = self.api.get_photos(user['id'])
@@ -69,23 +69,22 @@ class BotInterface:
 
                     photos_attachment = ",".join(photos_user)
                     user_answer = []
-                    user_number = []
+
                     session = db_url.Session()
                     if user_answer == '1':
-                        dating_user = db_url.DatingUser(['id'], user_number['first_name'],
-                                                        user_number['last_name'], user_number['bdate'],
-                                                        user_number['sex'], user_number['city'], photos_attachment,
-                                                        user_number['domain'], event.user_id)
+                        dating_user = db_url.DatingUser(['id'], user['first_name'],
+                                                        user['last_name'], user['bdate'],
+                                                        user['sex'], user['city'], photos_attachment,
+                                                        event.user_id)
                         session.add(dating_user)
                     elif user_answer == '2':
-                        black_list_item = db_url.BlackList(user_number['id'], user_number['first_name'],
-                                                           user_number['last_name'], user_number['bdate'],
-                                                           user_number['sex'], user_number['city'],
-                                                           photos_attachment, user_number['domain'], event.user_id)
+                        black_list_item = db_url.BlackList(user['id'], user['first_name'],
+                                                           user['last_name'], user['bdate'],
+                                                           user['sex'], user['city'],
+                                                           photos_attachment, event.user_id)
                         session.add(black_list_item)
                     elif user_answer == '3':
-                        self.write_msg(user_id=event.user_id,
-                                       message=dictionaries_vk.options_messages['users_end_search'])
+                        self.worksheets()
                         return False
                     session.commit()
                 elif command == 'пока':
@@ -96,4 +95,3 @@ class BotInterface:
 
 if __name__ == '__main__':
     bot = BotInterface(comunity_token, acces_token)
-    print(bot)
