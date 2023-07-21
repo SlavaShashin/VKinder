@@ -1,11 +1,12 @@
-import psycopg2
 import vk_api
 from psycopg2 import Error
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
-from config import db_url, comunity_token, acces_token
+import data_store
+from config import comunity_token, acces_token
 from core import VkTools
+from data_store import Viewed
 
 
 class BotInterface:
@@ -24,73 +25,67 @@ class BotInterface:
                               )
 
     def worksheets(self):
-        global attachment
         longpoll = VkLongPoll(self.interface)
 
-        for event in longpoll.listen():
-            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                command = event.text.lower()
+        try:
+            for event in longpoll.listen():
+                if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                    command = event.text.lower()
 
-                if command == 'привет':
-                    self.params = self.api.get_profile_info(event.user_id)
-                    self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
-                elif command == 'поиск':
-                    users = self.api.search_users(self.params)
-                    user = users.pop()
+                    if command == 'привет':
+                        self.params = self.api.get_profile_info(event.user_id)
+                        self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
+                    elif command == 'поиск':
+                        users = self.api.search_users(self.params)
+                        user = users.pop()
 
-                    photos_user = self.api.get_photos(user['id'])
+                        photos_user = self.api.get_photos(user['id'])
 
-                    if self.worksheets:
-                        worksheets = self.worksheets.pop()
-                        photos_user = self.api.get_photos(worksheets['id'])
+                        if self.worksheets:
+                            worksheets = self.worksheets.pop()
+                            photos_user = self.api.get_photos(worksheets['id'])
 
-                        self.message_send(event.user_id, f'имя: {worksheets["name"]} '
-                                                         f'ссылка: vk.com/{worksheets["id"]}'),
-                        attachment = ''
-                    for num, photo in enumerate(photos_user):
-                        attachment += f'photo{photo["owner_id"]}_{photo["id"]}'
-                        if num == 2:
-                            break
-                    self.message_send(event.user_id,
-                                      f'Встречайте {user["name"]}',
-                                      attachment=attachment
-                                      )
+                            self.message_send(event.user_id, f'имя: {worksheets["name"]} '
+                                                             f'ссылка: vk.com/{worksheets["id"]}'),
+                            attachment = ''
+                        for num, photo in enumerate(photos_user):
+                            attachment += f'photo{photo["owner_id"]}_{photo["id"]}'
+                            if num == 2:
+                                break
+                        self.message_send(event.user_id,
+                                          f'Встречайте {user["name"]}',
+                                          attachment=attachment
+                                          )
 
-                    try:
-                        connection = psycopg2.connect(db_url)
-                        cursor = connection.cursor()
+        except (Exception, Error) as error:
+            print('Ошибка базы данных', error)
 
-                        record_to_insert = ()
-                        cursor.execute(record_to_insert)
+        photos_attachment = ",".join(photos_user)
+        user_answer = []
 
-                        connection.commit()
-                    except (Exception, Error) as error:
-                        print('Ошибка базы данных', error)
+        if user_answer == '1':
+            dating_user = data_store.Viewed(['id'], user['first_name'],
+                                            user['last_name'], user['bdate'],
+                                            user['sex'], user['city'], photos_attachment,
+                                            event.user_id)
+            return dating_user
 
-                    photos_attachment = ",".join(photos_user)
-                    user_answer = []
+        elif user_answer == '2':
+            black_list_item = data_store.Viewed(user['id'], user['first_name'],
+                                                user['last_name'], user['bdate'],
+                                                user['sex'], user['city'],
+                                                photos_attachment, event.user_id)
+            return black_list_item
 
-                    session = db_url.Session()
-                    if user_answer == '1':
-                        dating_user = db_url.DatingUser(['id'], user['first_name'],
-                                                        user['last_name'], user['bdate'],
-                                                        user['sex'], user['city'], photos_attachment,
-                                                        event.user_id)
-                        session.add(dating_user)
-                    elif user_answer == '2':
-                        black_list_item = db_url.BlackList(user['id'], user['first_name'],
-                                                           user['last_name'], user['bdate'],
-                                                           user['sex'], user['city'],
-                                                           photos_attachment, event.user_id)
-                        session.add(black_list_item)
-                    elif user_answer == '3':
-                        self.worksheets()
-                        return False
-                    session.commit()
-                elif command == 'пока':
-                    self.message_send(event.user_id, 'пока')
-                else:
-                    self.message_send(event.user_id, 'команда не опознана')
+        elif user_answer == '3':
+            self.worksheets()
+            return False
+
+        elif command == 'пока':
+            self.message_send(event.user_id, 'пока')
+
+        else:
+            self.message_send(event.user_id, 'команда не опознана')
 
 
 if __name__ == '__main__':

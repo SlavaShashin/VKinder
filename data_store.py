@@ -1,4 +1,5 @@
 import sqlalchemy as sq
+import psycopg2
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
@@ -20,6 +21,14 @@ def add_user(profile_id, worksheet_id):
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         to_bd = Viewed(profile_id=profile_id, worksheet_id=worksheet_id)
+        connection = psycopg2.connect(db_url)
+        cursor = connection.cursor()
+
+        record_to_insert = ()
+        cursor.execute(record_to_insert)
+
+        connection.commit()
+
         session.add(to_bd)
         session.commit()
 
