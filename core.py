@@ -2,6 +2,8 @@ from datetime import datetime
 
 import vk_api
 
+from config import acces_token
+
 
 class VkTools:
     def __init__(self, acces_token):
@@ -10,7 +12,7 @@ class VkTools:
     def get_profile_info(self, user_id):
 
         info, = self.api.method('users.get',
-                                {'user_id': user_id,
+                                {'user_id': [user_id],
                                  'fields': 'city,bdate,sex,relation,home_town'
                                  }
                                 )
