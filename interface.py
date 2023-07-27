@@ -1,4 +1,5 @@
 import vk_api
+from pprint import pprint
 from psycopg2 import Error
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
@@ -72,4 +73,4 @@ if __name__ == '__main__':
     bot = BotInterface(comunity_token, acces_token)
     params = bot.api.get_profile_info(789657038)
     users = bot.api.search_users(params)
-    print(bot.api.get_photos(users[2]['id']))
+    pprint(bot.api.get_photos(users[2]['id']))
