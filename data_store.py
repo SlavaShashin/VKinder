@@ -41,6 +41,7 @@ class Viewed(Base):
             ).first()
             return True if from_bd else False
 
+    def user_search(self, user, photos_user, user_id):
         connection = psycopg2.connect(db_url)
         cursor = connection.cursor()
 
@@ -51,21 +52,26 @@ class Viewed(Base):
 
         photos_attachment = ",".join(photos_user)
         user_answer = []
+        profile_id = []
+        worksheet_id = []
+        to_bd = Viewed(profile_id=profile_id, worksheet_id=worksheet_id)
 
         session = db_url.Session()
         if user_answer == '1':
             dating_user = db_url.DatingUser(['id'], user['first_name'],
                                             user['last_name'], user['bdate'],
                                             user['sex'], user['city'], photos_attachment,
-                                            event.user_id)
+                                            user_id)
             session.add(dating_user)
         elif user_answer == '2':
             black_list_item = db_url.BlackList(user['id'], user['first_name'],
                                                user['last_name'], user['bdate'],
                                                user['sex'], user['city'],
-                                               photos_attachment, event.user_id)
+                                               photos_attachment, user_id)
             session.add(black_list_item)
         elif user_answer == '3':
             self.worksheets()
             return False
+
+        session.add(to_bd)
         session.commit()

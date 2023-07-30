@@ -40,6 +40,12 @@ class BotInterface:
                     users = self.api.search_users(self.params)
                     user = users.pop()
 
+                    if users == users:
+                        self.interface = self.api.search_users(event.user_id)
+                        return users
+                    else:
+                        self.message_send(event.user_id, f'введите недостающие данные {self.interface["params"]}')
+
                     photos_user = self.api.get_photos(user['id'])
 
                     if self.worksheets:
