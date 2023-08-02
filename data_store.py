@@ -15,6 +15,9 @@ class Viewed(Base):
     profile_id = sq.Column(sq.Integer, primary_key=True)
     worksheet_id = sq.Column(sq.Integer, primary_key=True)
 
+
+class UserProfile:
+
     def add_user(profile_id, worksheet_id):
         engine = create_engine(db_url)
         Base.metadata.create_all(engine)

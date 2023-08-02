@@ -6,14 +6,14 @@ from vk_api.utils import get_random_id
 
 from config import comunity_token, acces_token
 from core import VkTools
-from data_store import Viewed
+from data_store import UserProfile
 
 
 class BotInterface:
     def __init__(self, comunity_token, acces_token):
         self.interface = vk_api.VkApi(token=comunity_token)
         self.api = VkTools(acces_token)
-        self.data_store = Viewed()
+        self.data_store = UserProfile()
         self.params = None
 
     def message_send(self, user_id, message, attachment=None):
@@ -65,7 +65,7 @@ class BotInterface:
                                       )
 
                     try:
-                        Viewed.check_user == Viewed.check_user
+                        UserProfile.user_search == UserProfile.user_search
                     except (Exception, Error) as error:
                         print('Ошибка базы данных', error)
 
